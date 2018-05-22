@@ -1,5 +1,8 @@
 ---
 - hosts: all
+ 
+#  vars_files:
+#    - ../pass
   become: yes
 
   tasks:
@@ -43,8 +46,8 @@
 
     - name: Installing python libraries using pip
       pip:  
-        requirements: ../requirements.txt
-        executable: pip-3.5
+        requirements: /home/nmogbuk/auto_linux/requirements.txt
+        executable: pip3
 
 - include: db.yml
 - include: node.yml
