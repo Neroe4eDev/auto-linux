@@ -3,11 +3,17 @@
   become: yes
 
   tasks:
+
+    - name: Upgrade System
+      apt:
+        update_cache: yes
+        upgrade: yes
+
     - name: Install System packages
       apt: name={{item}} update-cache=yes state=installed
       with_items:
          - build-essential
-         - python-dev
+         - python3-dev
          - fail2ban
          - memcached
          - libmemcached-dev
@@ -15,6 +21,7 @@
          - python3-pip
          - nginx
          - php
+         - python3
 
     - name: Install prerequisites
       apt: name={{item}} update_cache=yes
@@ -36,8 +43,8 @@
 
     - name: Installing python libraries using pip
       pip:  
-        name: django,gunicorn,psycopg2,south,pylibmc
-        executable: pip3
+        requirements: ../requirements.txt
+        executable: pip-3.5
 
 - include: db.yml
 - include: node.yml
