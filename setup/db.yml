@@ -11,16 +11,16 @@
       action: copy src=../templates/pg-repo dest=/etc/apt/sources.list.d/pgdg.list
 
     - name: Import gpg keys
-      action: command /usr/bin/wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      apt_key: 
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
 
-    - name: update apt
-      action: command /usr/bin/apt-get update
-
-    - name: update cache
-      apt: update_cache=yes
+    - name: Update cache
+      apt: 
+        update_cache: yes
 
     - name: Install Postgres 9.6
-      apt: name=$item state=installed
+      apt: name={{ item}} state=installed
       with_items:
         - postgresql-9.6
         - libpq-dev

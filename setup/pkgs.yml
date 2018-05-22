@@ -25,6 +25,8 @@
          - nginx
          - php
          - python3
+         - gcc
+         - zlib1g-dev
 
     - name: Install prerequisites
       apt: name={{item}} update_cache=yes
@@ -44,10 +46,13 @@
     - name: Install Docker
       apt: name=docker-ce
 
+#    - name: Copy requirements.txt file to user home
+#      action: copy src=../files/requirements.txt dest=~/requirements.txt
+
     - name: Installing python libraries using pip
       pip:  
-        requirements: /home/nmogbuk/auto_linux/requirements.txt
+        name: Django, psycopg2, south, pylibmc
         executable: pip3
 
-- include: db.yml
-- include: node.yml
+- import_playbook: db.yml
+- import_playbook: node.yml
