@@ -1,26 +1,26 @@
 ---
 - hosts: all
-
+  become: yes
   vars:
     database_name: e4e_prod
     database_password: e4elab
     application: e4e_db
   tasks:
+ 
+    - name: Copy repo template to sources.list
+      action: copy src=../templates/pg-repo dest=/etc/apt/sources.list.d/pgdg.list
+
     - name: Import gpg keys
       action: command /usr/bin/wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-      sudo: yes
 
     - name: update apt
       action: command /usr/bin/apt-get update
-      sudo: yes
 
     - name: update cache
       apt: update_cache=yes
-      sudo: yes
 
     - name: Install Postgres 9.6
       apt: name=$item state=installed
-      sudo: yes
       with_items:
         - postgresql-9.6
         - libpq-dev
@@ -31,20 +31,17 @@
 
     - name: update postgres db configuration
       action: copy src=../templates/postgresql.conf dest=/etc/postgresql/9.6/main/postgresql.conf
-      sudo: yes
 
     - name: update postgres client configuration
       action: template src=/templates/pg_hba.conf dest=/etc/postgresql/9.6/main/pg_hba.conf
-      sudo: yes
 
     - name: start postgresql
-      sudo: yes
       service: name=postgresql state=restarted enabled=yes
 
     - name: Setup postgres database
-      sudo_user: postgres
+      become_user: postgres
       postgresql_db: name=$database_name state=present
 
     - name: Setup database user
-      sudo_user: postgres
+      become_user: postgres
       postgresql_user: db=$database_name user=$application password=$database_password
