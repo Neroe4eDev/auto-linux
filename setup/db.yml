@@ -2,9 +2,9 @@
 - hosts: all
   become: yes
   vars:
-    database_name: e4e_prod
-    database_password: e4elab
-    application: e4e_db
+    db_name: e4e_prod
+    db_pass: e4elab
+    db_user: e4e_db
   tasks:
  
     - name: Copy repo template to sources.list
@@ -40,8 +40,8 @@
 
     - name: Setup postgres database
       become_user: postgres
-      postgresql_db: name=$database_name state=present
+      postgresql_db: name={{ db_name }} state=present
 
     - name: Setup database user
       become_user: postgres
-      postgresql_user: db=$database_name user=$application password=$database_password
+      postgresql_user: db={{ db_name }} name={{ db_user }} password={{ db_pass }} priv=ALL
