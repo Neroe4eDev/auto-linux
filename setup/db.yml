@@ -48,23 +48,8 @@
       ignore_errors: yes
 
     - name: Start PostgreSQL
-      become_user: postgres
-      command: "{{ pg_bin }}/pg_ctl -D {{ data_dir }} -l {{ log_dir }}/logfile start"
-      ignore_errors: yes
-
-    - name: update postgres db configuration
-      action: copy src=../templates/postgresql.j2 dest=/etc/postgresql/9.6/main/postgresql.conf
-
-    - name: update postgres client configuration
-      action: template src=../templates/pg_hba.j2 dest=/etc/postgresql/9.6/main/pg_hba.conf
-
-    - name: Copy Postgresql service template to systemd 
-      template: src=../templates/postgresql-service.j2 dest=/lib/systemd/system/postgresql.service mode=644
-      notify:
-        - reload: systemctl
-
-    - name: Restart Postgresql
-      service: name=postgresql state=restarted enabled=yes
+      command: /etc/init.d/postgresql start
+#      ignore_errors: yes
 
     - name: Setup postgres database
       become_user: postgres
@@ -73,3 +58,32 @@
     - name: Setup database user
       become_user: postgres
       postgresql_user: db={{ db_name }} name={{ db_user }} password={{ db_pass }} priv=ALL
+
+    - name: update postgres db configuration
+      action: copy src=../templates/postgresql.j2 dest=/var/lib/postgresql/9.6/main/postgresql.conf
+
+    - name: update postgres client configuration
+      action: template src=../templates/pg_hba.j2 dest=/var/lib/postgresql/9.6/main/pg_hba.conf
+
+#    - name: Copy Postgresql service template to systemd 
+#      action: copy src=../templates/postgresql.service dest=/lib/systemd/system/postgresql.service mode=644
+
+    - name: reload systemd
+      command: systemctl daemon-reload
+
+    - name: Restart Postgresql
+      command: /etc/init.d/postgresql restart
+
+    - name: Reboot required
+      command: ( /bin/sleep 5 ; shutdown -r now ) & removes=/var/run/reboot-required
+      async: 30
+      poll: 0
+      ignore_errors: true
+      notify:
+        - waiting for server to come back
+
+  handlers:
+     - name: waiting for server to come back
+       local_action: wait_for host={{ inventory_hostname }} port=22 state=started delay=10 timeout=60
+       become: no
+

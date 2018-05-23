@@ -1,0 +1,28 @@
+[Unit]
+Description=PostgreSQL database server
+After=network.target
+
+[Service]
+Type=forking
+
+User=postgres
+Group=postgres
+
+# Where to send early-startup messages from the server (before the logging
+# options of postgresql.conf take effect)
+# This is normally controlled by the global default set by systemd
+[Unit]
+Description=PostgreSQL database server
+Documentation=man:postgres(1)
+
+[Service]
+Type=forking
+User=postgres
+ExecStart=/usr/lib/postgresql/9.6/bin/pg_ctl -D /var/lib/postgresql/9.6/main/data -l /var/lib/postgresql/9.6/main/data/pg_log/logfile
+ExecReload=/bin/kill -HUP $MAINPID
+KillMode=mixed
+KillSignal=SIGINT
+TimeoutSec=0
+
+[Install]
+WantedBy=multi-user.target
