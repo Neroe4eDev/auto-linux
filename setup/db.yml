@@ -2,6 +2,8 @@
 - hosts: all
   become: yes
   vars:
+    data_dir: /var/lib/postgresql/9.6/main
+    pg_bin: /usr/lib/postgresql/9.6/bin
     db_name: e4e_prod
     db_pass: e4elab
     db_user: e4e_db
@@ -20,7 +22,7 @@
         update_cache: yes
 
     - name: Install Postgres 9.6
-      apt: name={{ item}} state=installed
+      apt: name={{ item }} state=installed
       with_items:
         - postgresql-9.6
         - libpq-dev
@@ -29,13 +31,23 @@
         - postgresql-contrib-9.6
         - postgresql-client-9.6
 
+    - name: Initialize new PostgreSQL BDR cluster on upstream server
+      become_user: postgres
+      command: "{{ pg_bin }}/initdb -D {{ data_dir }} -A trust"
+      ignore_errors: yes
+
+    - name: Start PostgreSQL
+      become_user: postgres
+      command: "{{ pg_bin }}/pg_ctl -D {{ data_dir }} start"
+      ignore_errors: yes
+
     - name: update postgres db configuration
       action: copy src=../templates/postgresql.conf dest=/etc/postgresql/9.6/main/postgresql.conf
 
     - name: update postgres client configuration
-      action: template src=/templates/pg_hba.conf dest=/etc/postgresql/9.6/main/pg_hba.conf
+      action: template src=../templates/pg_hba.conf dest=/etc/postgresql/9.6/main/pg_hba.conf
 
-    - name: start postgresql
+    - name: Restart Postgresql
       service: name=postgresql state=restarted enabled=yes
 
     - name: Setup postgres database
