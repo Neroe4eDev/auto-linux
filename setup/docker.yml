@@ -1,0 +1,25 @@
+---
+- hosts: all
+  become: yes
+  vars_files:
+    - ../vars.yml
+  tasks:
+  
+      - name: Make directory for captainduckduck
+        file: 
+          path: /captain 
+          owner: "{{ user }}"
+          state: directory
+
+      - name: Add user to docker group
+        user: 
+          name: "{{ user }}"
+          groups: docker
+          append: yes
+
+      - name: Start Captainduckduck swarm
+        command: "docker run -p 8080:8080 -p 4443:4443 -p 3000:3000 -e BY_PASS_PROXY_CHECK='TRUE' -v /var/run/docker.sock:/var/run/docker.sock dockersaturn/captainduckduck"
+        ignore_errors: yes
+
+      - name: Install Captainduckduck CLI
+        command: npm i -g captainduckduck

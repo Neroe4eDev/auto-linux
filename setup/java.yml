@@ -1,0 +1,36 @@
+---
+
+- hosts: all
+  become: yes
+  vars:
+    oracle_java_set_as_default: yes
+
+  tasks:
+      - name: Install add-apt-repostory
+        apt: name=software-properties-common state=latest
+
+      - name: Add Oracle Java Repository
+        apt_repository: repo='ppa:webupd8team/java' update_cache=yes state=present
+
+      - name: debian | ensure the webupd8 launchpad apt repository key is present
+        apt_key:
+          id=0xC2518248EEA14886
+          keyserver=keyserver.ubuntu.com
+          state=present
+
+      - name: Accept Java 8 License
+        debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
+
+      - name: Install Oracle Java 8
+        apt: name={{ item }} state=present
+        with_items:
+          - oracle-java8-installer
+          - ca-certificates
+          - oracle-java8-set-default
+
+      - name: debian | set Java version as default
+        apt:
+          name=oracle-java8-set-default
+          state=present
+        register: oracle_java_task_set_default
+        when: oracle_java_set_as_default

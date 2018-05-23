@@ -1,0 +1,19 @@
+[Unit]
+Description=Cloud Commander Service
+DefaultDependencies=no
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cloudcmd
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=Cloud Commander Service
+User={{ user }}
+Group={{ user }}
+
+[Install]
+WantedBy=multi-user.target
+

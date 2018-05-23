@@ -7,18 +7,29 @@
       - name: Import gpg keys
         command: /usr/bin/curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh
         args:
-          chdir: /home/test
+          chdir: {{ user_home }}
       
       - name: Make script executable
         file: 
-          path: /home/test/nodesource_setup.sh
+          path: "{{ user_home }}/nodesource_setup.sh"
           owner: test
           mode: 0775
 
       - name: Run node script 
-        command: /home/test/nodesource_setup.sh
+        command: "{{ user_home }}/nodesource_setup.sh"
 
       - name: Install nodejs
         apt: name={{ item }} state=installed
         with_items:
           - nodejs
+
+      - name: Install Cloud Commander
+        command: npm i cloudcmd -g
+
+      - name: Copy cloud commander service file template to systemd location
+        template: src=../templates/cloudcmd.j2 dest=/etc/systemd/system/cloudcmd.service mode=644
+        notify:
+          - reload: systemctl
+
+      - name: start and enable Cloud Commander service
+        service: name=cloudcmd state=started enabled=yes

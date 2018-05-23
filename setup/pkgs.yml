@@ -56,3 +56,6 @@
 
 - import_playbook: db.yml
 - import_playbook: node.yml
+- import_playbook: java.yml
+- import_playbook: firewall.yml
+- import_playbook: docker.yml

@@ -1,0 +1,10 @@
+---
+
+data_dir: /var/lib/postgresql/9.6/main
+pg_bin: /usr/lib/postgresql/9.6/bin
+log_dir: /var/lib/postgresql/9.6/main/pg_log
+db_name: e4e_prod
+user: test
+user_home: "/home/{{ user }}"
+db_user: "{{ user }}"
+db_pass: test
