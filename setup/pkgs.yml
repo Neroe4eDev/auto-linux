@@ -6,6 +6,9 @@
   become: yes
 
   tasks:
+  
+    - name: Install Aptitude
+      apt: name=aptitude update-cache=yes state=present
 
     - name: Upgrade System
       apt:
@@ -13,7 +16,7 @@
         upgrade: yes
 
     - name: Install System packages
-      apt: name={{item}} update-cache=yes state=installed
+      apt: name={{item}} update-cache=yes state=present
       with_items:
          - build-essential
          - python3-dev
@@ -27,6 +30,7 @@
          - python3
          - gcc
          - zlib1g-dev
+         - redis
 
     - name: Install prerequisites
       apt: name={{item}} update_cache=yes
