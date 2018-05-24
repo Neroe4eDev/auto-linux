@@ -10,6 +10,9 @@
     - name: Install Aptitude
       apt: name=aptitude update-cache=yes state=present
 
+    - name: Add Redis Server PPA
+      apt_repository: repo='ppa:chris-lea/redis-server' state=present
+
     - name: Upgrade System
       apt:
         update_cache: yes
@@ -30,7 +33,7 @@
          - python3
          - gcc
          - zlib1g-dev
-         - redis
+         - redis-server
 
     - name: Install prerequisites
       apt: name={{item}} update_cache=yes
@@ -58,8 +61,8 @@
         name: Django, psycopg2, south, pylibmc
         executable: pip3
 
-- import_playbook: node.yml
-- import_playbook: docker.yml
-- import_playbook: java.yml
-- import_playbook: firewall.yml
-- import_playbook: db.yml
+- include: node.yml
+- include: docker.yml
+- include: java.yml
+- include: firewall.yml
+- include: db.yml
